@@ -30,7 +30,7 @@ The native part is compiled into the nanoFramework firmware (nf-interpreter). It
 -DNF_EXTRA_IDF_COMPONENT_DIRS=<repo>/native/components/libpeer
 ```
 
-The sdkconfig needs `CONFIG_LWIP_IPV6=y`, `CONFIG_MBEDTLS_SSL_PROTO_DTLS=y`, `CONFIG_MBEDTLS_SSL_PROTO_TLS1_3=n`, `CONFIG_MBEDTLS_PEM_WRITE_C=y` (see MiniRover's `sdkconfig.default_minirover.esp32`). Clone with submodules: `git submodule update --init --recursive`.
+The sdkconfig needs `CONFIG_LWIP_IPV6=y`, `CONFIG_MBEDTLS_SSL_PROTO_DTLS=y`, `CONFIG_MBEDTLS_SSL_PROTO_TLS1_3=n`, `CONFIG_MBEDTLS_PEM_WRITE_C=y` (see MiniRover's `sdkconfig.default_minirover.esp32`). Clone with submodules: `git clone --recursive` (libpeer's own third-party submodules are marked `update = none`: the ESP-IDF build does not use them).
 
 ## libpeer fixes (branch spawndev-nf)
 
@@ -38,6 +38,7 @@ On top of SpawnWear's patches:
 - data channel open now carries the requested channel type (it was always reliable/ordered);
 - SCTP receive: all chunks in a packet, fragment reassembly, correct SACKs with gap blocks, 64 KB window (was 2 bytes);
 - buffered sends keep their stream id (a second channel could never receive); direct no-copy send; DTLS role accessor.
+- libpeer's built-in signaling (WHIP/MQTT) is opt-in on ESP-IDF (`LIBPEER_SIGNALING=ON`); this library signals through `TrackerSignaling` instead.
 
 ## License
 
