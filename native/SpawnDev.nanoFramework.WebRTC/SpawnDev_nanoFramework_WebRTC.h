@@ -27,6 +27,7 @@ struct Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerC
     NANOCLR_NATIVE_DECLARE(TryReceive___STATIC__I4__I4__SZARRAY_U1);
     NANOCLR_NATIVE_DECLARE(GetState___STATIC__I4__I4);
     NANOCLR_NATIVE_DECLARE(GetStat___STATIC__I4__I4__I4);
+    NANOCLR_NATIVE_DECLARE(SetTestLoss___STATIC__VOID__I4__I4);
     NANOCLR_NATIVE_DECLARE(Close___STATIC__VOID__I4);
 
     //--//

@@ -46,6 +46,8 @@ namespace SpawnDev_nanoFramework_WebRTC
 
             static signed int GetStat( signed int param0, signed int param1, HRESULT &hr );
 
+            static void SetTestLoss( signed int param0, signed int param1, HRESULT &hr );
+
             static void Close( signed int param0, HRESULT &hr );
 
         };

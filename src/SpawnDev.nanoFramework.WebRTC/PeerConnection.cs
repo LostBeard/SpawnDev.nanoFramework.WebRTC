@@ -50,6 +50,18 @@ namespace SpawnDev.nanoFramework.WebRTC
         public const int StatUdpSendErrors = 8;
         /// <summary>Times a datagram had to be retried because network buffers were momentarily full (whole device).</summary>
         public const int StatUdpSendRetries = 9;
+        /// <summary>SCTP chunks retransmitted because the peer did not acknowledge them in time (this connection).</summary>
+        public const int StatSctpRetransmits = 10;
+        /// <summary>Chunks given up on: no-retransmit (video) chunks unacknowledged after 500 ms, or reliable ones after 10 tries.</summary>
+        public const int StatSctpAbandoned = 11;
+        /// <summary>FORWARD-TSN chunks sent to move the peer past abandoned chunks.</summary>
+        public const int StatSctpForwardTsn = 12;
+        /// <summary>1 if the peer supports FORWARD-TSN (Chrome does); without it a lost video chunk leaves a gap.</summary>
+        public const int StatSctpPeerForwardTsn = 13;
+        /// <summary>Reliable chunks sent while the retransmission store was full (not protected).</summary>
+        public const int StatSctpUnprotected = 14;
+        /// <summary>Datagrams dropped on purpose by <see cref="SetTestLoss"/>.</summary>
+        public const int StatTestDropped = 15;
 
         /// <summary>Creates a peer connection. <paramref name="iceServers"/>: space-separated STUN URLs, up to 3
         /// (e.g. "stun:stun.l.google.com:19302"). Returns a handle (>= 0) or -1.</summary>
@@ -107,6 +119,13 @@ namespace SpawnDev.nanoFramework.WebRTC
         /// <summary>Diagnostics (Stat* constants). Heap stats ignore the handle.</summary>
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern int GetStat(int handle, int stat);
+
+        /// <summary>
+        /// Test hook: drops <paramref name="permille"/> of this connection's outgoing data datagrams on purpose (0 = off), to
+        /// prove retransmission and FORWARD-TSN on a real link. Never leave it on.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public static extern void SetTestLoss(int handle, int permille);
 
         /// <summary>Closes the connection and frees the handle.</summary>
         [MethodImpl(MethodImplOptions.InternalCall)]

@@ -595,9 +595,30 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
             return s->framesSent;
         case 7:
             return s->framesDropped;
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+            // SCTP send side (libpeer fork): retransmits, abandoned, FORWARD-TSN sent, peer FORWARD-TSN support,
+            // unprotected reliable chunks, test drops.
+            return s->pc != NULL ? peer_connection_get_sctp_stat(s->pc, param1 - 10) : -1;
         default:
             return -1;
     }
+}
+
+void PeerConnection::SetTestLoss(signed int param0, signed int param1, HRESULT &hr)
+{
+    (void)hr;
+    xSemaphoreTake(s_mutex, portMAX_DELAY);
+    SdSlot *s = sd_slot(param0);
+    if (s != NULL && s->pc != NULL)
+    {
+        peer_connection_set_test_loss(s->pc, param1);
+    }
+    xSemaphoreGive(s_mutex);
 }
 
 // Caller holds s_mutex.

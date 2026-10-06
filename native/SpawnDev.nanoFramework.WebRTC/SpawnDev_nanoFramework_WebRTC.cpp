@@ -25,6 +25,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
     Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::TryReceive___STATIC__I4__I4__SZARRAY_U1,
     Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::GetState___STATIC__I4__I4,
     Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::GetStat___STATIC__I4__I4__I4,
+    Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::SetTestLoss___STATIC__VOID__I4__I4,
     Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::Close___STATIC__VOID__I4,
     nullptr,
     nullptr,
@@ -63,7 +64,7 @@ static const CLR_RT_MethodHandler method_lookup[] =
 const CLR_RT_NativeAssemblyData g_CLR_AssemblyNative_SpawnDev_nanoFramework_WebRTC =
 {
     "SpawnDev.nanoFramework.WebRTC",
-    0x846AB963,
+    0xF4D2005E,
     method_lookup,
     { 1, 0, 0, 0 }
 };

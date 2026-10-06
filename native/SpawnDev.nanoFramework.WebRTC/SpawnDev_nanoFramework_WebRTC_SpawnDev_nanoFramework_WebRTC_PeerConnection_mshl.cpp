@@ -228,6 +228,24 @@ HRESULT Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_Peer
     NANOCLR_NOCLEANUP();
 }
 
+HRESULT Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::SetTestLoss___STATIC__VOID__I4__I4( CLR_RT_StackFrame& stack )
+{
+    NANOCLR_HEADER(); hr = S_OK;
+    {
+
+        signed int param0;
+        NANOCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 0, param0 ) );
+
+        signed int param1;
+        NANOCLR_CHECK_HRESULT( Interop_Marshal_INT32( stack, 1, param1 ) );
+
+        PeerConnection::SetTestLoss( param0, param1, hr );
+        NANOCLR_CHECK_HRESULT( hr );
+
+    }
+    NANOCLR_NOCLEANUP();
+}
+
 HRESULT Library_SpawnDev_nanoFramework_WebRTC_SpawnDev_nanoFramework_WebRTC_PeerConnection::Close___STATIC__VOID__I4( CLR_RT_StackFrame& stack )
 {
     NANOCLR_HEADER(); hr = S_OK;
