@@ -1,0 +1,56 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Oo]ut/
+artifacts/
+publish/
+*.binlog
+
+# Visual Studio / Rider / VS Code user state
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.user
+*.suo
+*.rsuser
+*.userprefs
+
+# Test output
+[Tt]est[Rr]esult*/
+TestResults/
+*.trx
+playwright-report/
+
+# nanoFramework
+*.pe
+*.pdbx
+packages/
+
+# Firmware build output (prebuilt images are published as GitHub Release assets, not committed)
+firmware/build/
+firmware/**/build/
+*.bin
+*.elf
+*.map
+sdkconfig
+sdkconfig.old
+
+# Local-only developer settings and secrets. Never commit WiFi credentials or pairing keys.
+*.local.json
+*.local.cs
+**/Secrets/
+**/WifiCredentials.cs
+
+# OS noise
+Thumbs.db
+.DS_Store
+
+# local test/deploy logs
+*.log
+
+# MetadataProcessor stub output (copied by hand into native/ when InternalCall signatures change)
+**/Stubs/
+*.log

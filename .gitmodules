@@ -1,0 +1,4 @@
+[submodule "native/components/libpeer"]
+	path = native/components/libpeer
+	url = https://github.com/LostBeard/libpeer.git
+	branch = spawndev-nf
