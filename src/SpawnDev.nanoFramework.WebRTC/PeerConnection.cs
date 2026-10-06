@@ -46,6 +46,10 @@ namespace SpawnDev.nanoFramework.WebRTC
         public const int StatLargestInternalBlock = 5;
         public const int StatFramesSent = 6;
         public const int StatFramesDropped = 7;
+        /// <summary>UDP datagrams the network stack refused even after short retries (lost; whole device, any handle).</summary>
+        public const int StatUdpSendErrors = 8;
+        /// <summary>Times a datagram had to be retried because network buffers were momentarily full (whole device).</summary>
+        public const int StatUdpSendRetries = 9;
 
         /// <summary>Creates a peer connection. <paramref name="iceServers"/>: space-separated STUN URLs, up to 3
         /// (e.g. "stun:stun.l.google.com:19302"). Returns a handle (>= 0) or -1.</summary>

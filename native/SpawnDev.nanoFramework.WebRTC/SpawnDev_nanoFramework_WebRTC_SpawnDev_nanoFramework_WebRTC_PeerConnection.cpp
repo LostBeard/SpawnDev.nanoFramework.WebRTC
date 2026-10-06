@@ -37,6 +37,10 @@ typedef LpPeerConn LpPeer;
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_heap_caps.h"
+
+// libpeer send-path counters (libpeer socket.c; socket.h has no extern "C" guard, so declared here).
+extern "C" volatile uint32_t g_udp_send_errors;
+extern "C" volatile uint32_t g_udp_send_retries;
 #include <string.h>
 
 using namespace SpawnDev_nanoFramework_WebRTC::SpawnDev_nanoFramework_WebRTC;
@@ -567,6 +571,10 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
             return (signed int)heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
         case 5:
             return (signed int)heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL);
+        case 8:
+            return (signed int)g_udp_send_errors;
+        case 9:
+            return (signed int)g_udp_send_retries;
         default:
             break;
     }
