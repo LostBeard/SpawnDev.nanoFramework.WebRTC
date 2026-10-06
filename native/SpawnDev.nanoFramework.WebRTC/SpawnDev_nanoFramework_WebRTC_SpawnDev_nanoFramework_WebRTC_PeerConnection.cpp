@@ -282,8 +282,12 @@ static void sd_pump_task(void *arg)
     }
 }
 
+static void sd_soft_reboot();
+
 static bool sd_ensure_init()
 {
+    // Deduped by the HAL, and its handler table survives soft reboots, so registering on every call is harmless.
+    HAL_AddSoftRebootHandler(sd_soft_reboot);
     if (s_inited)
     {
         return true;
@@ -588,6 +592,21 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
     }
 }
 
+// Caller holds s_mutex.
+static void sd_close_slot(SdSlot *s)
+{
+    s->inUse = false; // stops the C API before the buffers go
+    if (s->pc != NULL)
+    {
+        peer_connection_close(s->pc);
+        peer_connection_destroy(s->pc);
+    }
+    xSemaphoreTake(s_txLock, portMAX_DELAY);
+    sd_free_buffers(s);
+    memset(s, 0, sizeof(*s));
+    xSemaphoreGive(s_txLock);
+}
+
 void PeerConnection::Close(signed int param0, HRESULT &hr)
 {
     (void)hr;
@@ -595,16 +614,27 @@ void PeerConnection::Close(signed int param0, HRESULT &hr)
     SdSlot *s = sd_slot(param0);
     if (s != NULL)
     {
-        s->inUse = false; // stops the C API before the buffers go
-        if (s->pc != NULL)
+        sd_close_slot(s);
+    }
+    xSemaphoreGive(s_mutex);
+}
+
+// A CLR soft reboot (deploy, debugger restart, Power.RebootDevice's CLR-only path) restarts managed code but keeps
+// native state. Without this, the old program's connections keep their slots and ~190 KB of buffers each, and the
+// new program's Create fails ("no slot / out of memory").
+static void sd_soft_reboot()
+{
+    if (!s_inited)
+    {
+        return;
+    }
+    xSemaphoreTake(s_mutex, portMAX_DELAY);
+    for (int i = 0; i < SD_MAX_PEERS; i++)
+    {
+        if (s_slots[i].inUse)
         {
-            peer_connection_close(s->pc);
-            peer_connection_destroy(s->pc);
+            sd_close_slot(&s_slots[i]);
         }
-        xSemaphoreTake(s_txLock, portMAX_DELAY);
-        sd_free_buffers(s);
-        memset(s, 0, sizeof(*s));
-        xSemaphoreGive(s_txLock);
     }
     xSemaphoreGive(s_mutex);
 }

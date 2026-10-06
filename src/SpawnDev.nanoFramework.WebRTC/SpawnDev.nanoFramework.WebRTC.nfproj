@@ -22,6 +22,7 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
+    <Compile Include="DataChannel.cs" />
     <Compile Include="PeerConnection.cs" />
     <Compile Include="RootCertificates.cs" />
     <Compile Include="TrackerSignaling.cs" />

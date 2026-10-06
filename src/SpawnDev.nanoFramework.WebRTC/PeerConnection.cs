@@ -12,7 +12,7 @@ namespace SpawnDev.nanoFramework.WebRTC
     ///
     /// <para>Flow (this device as the offerer, the usual case behind NAT):
     /// Create -> CreateOffer -> poll GetLocalSdpLength / GetLocalSdp -> send the offer through signaling ->
-    /// SetRemoteDescription(answer) -> poll GetState until <see cref="StateCompleted"/> -> CreateDataChannel for each
+    /// SetRemoteDescription(answer) -> poll GetState until <see cref="StateCompleted"/> -> DataChannel.Open for each
     /// channel -> Send / TryReceive.</para>
     /// </summary>
     public static class PeerConnection
