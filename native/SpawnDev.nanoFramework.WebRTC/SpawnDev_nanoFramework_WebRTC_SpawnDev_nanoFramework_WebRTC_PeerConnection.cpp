@@ -37,10 +37,12 @@ typedef LpPeerConn LpPeer;
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_heap_caps.h"
+#include "esp_timer.h"
 
 // libpeer send-path counters (libpeer socket.c; socket.h has no extern "C" guard, so declared here).
 extern "C" volatile uint32_t g_udp_send_errors;
 extern "C" volatile uint32_t g_udp_send_retries;
+extern "C" volatile uint32_t g_dtls_write_us, g_dtls_writes, g_udp_send_us, g_udp_sends;
 #include <string.h>
 
 using namespace SpawnDev_nanoFramework_WebRTC::SpawnDev_nanoFramework_WebRTC;
@@ -89,6 +91,9 @@ struct SdSlot
     volatile int framePending;
     volatile int framesSent;
     volatile int framesDropped;
+    // Where the pump's time goes (microseconds): one video frame's send (SCTP + DTLS + UDP), one peer_connection_loop
+    // pass. Running average (1/8) and the largest since the session opened.
+    volatile int frameSendUs, frameSendMaxUs, loopUs, loopMaxUs;
 };
 
 static SdSlot s_slots[SD_MAX_PEERS];
@@ -253,6 +258,12 @@ static void sd_tx_drain(SdSlot *s)
 
 // ---- the single pump task ----
 
+static void sd_time(volatile int *avg, volatile int *max, int us)
+{
+    *avg = *avg == 0 ? us : *avg + (us - *avg) / 8;
+    if (us > *max) *max = us;
+}
+
 static void sd_pump_task(void *arg)
 {
     (void)arg;
@@ -266,7 +277,9 @@ static void sd_pump_task(void *arg)
             {
                 continue;
             }
+            int64_t t0 = esp_timer_get_time();
             peer_connection_loop(s->pc);
+            sd_time(&s->loopUs, &s->loopMaxUs, (int)(esp_timer_get_time() - t0));
             if (s->state == (int)PEER_CONNECTION_COMPLETED)
             {
                 // Control messages first, then at most one video frame per pass so controls are never stuck behind
@@ -274,7 +287,9 @@ static void sd_pump_task(void *arg)
                 sd_tx_drain(s);
                 if (s->framePending)
                 {
+                    int64_t f0 = esp_timer_get_time();
                     peer_connection_datachannel_send_sid_direct(s->pc, (char *)s->frame, s->frameLen, s->frameSid);
+                    sd_time(&s->frameSendUs, &s->frameSendMaxUs, (int)(esp_timer_get_time() - f0));
                     s->framesSent++;
                     __sync_synchronize();
                     s->framePending = 0;
@@ -282,7 +297,9 @@ static void sd_pump_task(void *arg)
             }
         }
         xSemaphoreGive(s_mutex);
-        vTaskDelay(pdMS_TO_TICKS(1));
+        // Sleep one tick at most: a video frame from sdnf_webrtc_offer_frame wakes the pump at once. Waiting out the
+        // tick (10 ms at 100 Hz) delayed every frame by up to that much and capped the frame rate.
+        ulTaskNotifyTake(pdTRUE, 1);
     }
 }
 
@@ -589,6 +606,10 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
             return (signed int)g_udp_send_errors;
         case 9:
             return (signed int)g_udp_send_retries;
+        case 29:
+            return g_dtls_writes ? (signed int)(g_dtls_write_us / g_dtls_writes) : 0;
+        case 30:
+            return g_udp_sends ? (signed int)(g_udp_send_us / g_udp_sends) : 0;
         default:
             break;
     }
@@ -630,6 +651,16 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
             // ICE (libpeer fork): peer-reflexive candidates learned, selected remote candidate type and IPv4
             // address, candidate pairs, local candidates; DTLS handshake datagrams sent / received, mbedTLS state.
             return s->pc != NULL ? peer_connection_get_ice_stat(s->pc, param1 - 16) : -1;
+        case 25:
+            return s->frameSendUs;
+        case 26:
+            return s->frameSendMaxUs;
+        case 27:
+            return s->loopUs;
+        case 28:
+            return s->loopMaxUs;
+        case 31:
+            return s->pc != NULL ? peer_connection_get_ice_stat(s->pc, 9) : -1;
         default:
             return -1;
     }
@@ -721,6 +752,10 @@ extern "C" int sdnf_webrtc_offer_frame(int handle, uint16_t sid, const uint8_t *
     __sync_synchronize();
     s->framePending = 1;
     xSemaphoreGive(s_txLock);
+    if (s_pump != NULL)
+    {
+        xTaskNotifyGive(s_pump);
+    }
     return 1;
 }
 

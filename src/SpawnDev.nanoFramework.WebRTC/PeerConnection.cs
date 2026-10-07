@@ -76,6 +76,20 @@ namespace SpawnDev.nanoFramework.WebRTC
         public const int StatDtlsState = 23;
         /// <summary>SCTP INIT / COOKIE ECHO resends (association handshake, RFC 4960 T1 timers).</summary>
         public const int StatSctpHandshakeRetransmits = 24;
+        /// <summary>One video frame's send through SCTP, DTLS and UDP, microseconds: running average.</summary>
+        public const int StatFrameSendMicroseconds = 25;
+        /// <summary>The slowest video frame send since the session opened, microseconds.</summary>
+        public const int StatFrameSendMaxMicroseconds = 26;
+        /// <summary>One pass of the native connection loop (receive, ICE, DTLS, SCTP timers), microseconds: running average.</summary>
+        public const int StatLoopMicroseconds = 27;
+        /// <summary>The slowest connection loop pass since the session opened, microseconds.</summary>
+        public const int StatLoopMaxMicroseconds = 28;
+        /// <summary>All connections (handle ignored): one DTLS application-data write (encrypt + UDP send), average microseconds since boot.</summary>
+        public const int StatDtlsWriteMicroseconds = 29;
+        /// <summary>All connections (handle ignored): one UDP sendto, retries included, average microseconds since boot.</summary>
+        public const int StatUdpSendMicroseconds = 30;
+        /// <summary>The negotiated DTLS cipher suite (IANA id, e.g. 0xC02B ECDHE-ECDSA-AES128-GCM-SHA256).</summary>
+        public const int StatDtlsCipherSuite = 31;
 
         /// <summary>Creates a peer connection. <paramref name="iceServers"/>: space-separated STUN URLs, up to 3
         /// (e.g. "stun:stun.l.google.com:19302"). Returns a handle (>= 0) or -1.</summary>
