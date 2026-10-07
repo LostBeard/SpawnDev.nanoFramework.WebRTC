@@ -303,7 +303,21 @@ static bool sd_ensure_init()
         return false;
     }
     peer_init();
-    if (xTaskCreate(sd_pump_task, "sdnf_webrtc", SD_PUMP_STACK, NULL, 5, &s_pump) != pdPASS)
+    BaseType_t created = pdFAIL;
+#if CONFIG_SPIRAM && CONFIG_FREERTOS_TASK_CREATE_ALLOW_EXT_MEM
+    // The pump's 16 KB stack in PSRAM when the target allows it: in internal RAM it left a MiniRover car (camera +
+    // BLE kept on for play mode signaling) with 4 KB internal free (measured 21 -> 4 KB at the first session), too
+    // little for the WiFi driver: ICE answered 20 s late and DTLS timed out. Safe here because this task never runs
+    // with the flash cache disabled (flash writes suspend the scheduler and park the other core); the TCB stays in
+    // internal RAM. Falls back to an internal stack.
+    created = xTaskCreatePinnedToCoreWithCaps(sd_pump_task, "sdnf_webrtc", SD_PUMP_STACK, NULL, 5, &s_pump,
+                                              tskNO_AFFINITY, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+#endif
+    if (created != pdPASS)
+    {
+        created = xTaskCreate(sd_pump_task, "sdnf_webrtc", SD_PUMP_STACK, NULL, 5, &s_pump);
+    }
+    if (created != pdPASS)
     {
         return false;
     }
@@ -604,6 +618,14 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
             // SCTP send side (libpeer fork): retransmits, abandoned, FORWARD-TSN sent, peer FORWARD-TSN support,
             // unprotected reliable chunks, test drops.
             return s->pc != NULL ? peer_connection_get_sctp_stat(s->pc, param1 - 10) : -1;
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+            // ICE (libpeer fork): peer-reflexive candidates learned, selected remote candidate type and IPv4
+            // address, candidate pairs, local candidates.
+            return s->pc != NULL ? peer_connection_get_ice_stat(s->pc, param1 - 16) : -1;
         default:
             return -1;
     }

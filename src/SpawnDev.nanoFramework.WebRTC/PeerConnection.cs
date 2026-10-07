@@ -62,6 +62,14 @@ namespace SpawnDev.nanoFramework.WebRTC
         public const int StatSctpUnprotected = 14;
         /// <summary>Datagrams dropped on purpose by <see cref="SetTestLoss"/>.</summary>
         public const int StatTestDropped = 15;
+        /// <summary>Peer-reflexive candidates learned from the peer's checks this session (its mDNS names are not resolved).</summary>
+        public const int StatIcePrflxLearned = 16;
+        /// <summary>Type of the selected pair's remote candidate: 0 host, 1 server-reflexive, 2 peer-reflexive, 3 relay; -1 none yet.</summary>
+        public const int StatIceSelectedType = 17;
+        /// <summary>IPv4 address of the selected pair's remote candidate (network byte order), 0 before one is selected.</summary>
+        public const int StatIceSelectedAddress = 18;
+        public const int StatIceCandidatePairs = 19;
+        public const int StatIceLocalCandidates = 20;
 
         /// <summary>Creates a peer connection. <paramref name="iceServers"/>: space-separated STUN URLs, up to 3
         /// (e.g. "stun:stun.l.google.com:19302"). Returns a handle (>= 0) or -1.</summary>
