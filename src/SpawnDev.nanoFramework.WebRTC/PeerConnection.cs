@@ -70,6 +70,12 @@ namespace SpawnDev.nanoFramework.WebRTC
         public const int StatIceSelectedAddress = 18;
         public const int StatIceCandidatePairs = 19;
         public const int StatIceLocalCandidates = 20;
+        /// <summary>Datagrams sent / received while the DTLS handshake ran, and mbedTLS's handshake state (diagnostics).</summary>
+        public const int StatDtlsHandshakeSent = 21;
+        public const int StatDtlsHandshakeReceived = 22;
+        public const int StatDtlsState = 23;
+        /// <summary>SCTP INIT / COOKIE ECHO resends (association handshake, RFC 4960 T1 timers).</summary>
+        public const int StatSctpHandshakeRetransmits = 24;
 
         /// <summary>Creates a peer connection. <paramref name="iceServers"/>: space-separated STUN URLs, up to 3
         /// (e.g. "stun:stun.l.google.com:19302"). Returns a handle (>= 0) or -1.</summary>

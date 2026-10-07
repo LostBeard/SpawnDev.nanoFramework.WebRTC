@@ -623,8 +623,12 @@ signed int PeerConnection::GetStat(signed int param0, signed int param1, HRESULT
         case 18:
         case 19:
         case 20:
+        case 21:
+        case 22:
+        case 23:
+        case 24:
             // ICE (libpeer fork): peer-reflexive candidates learned, selected remote candidate type and IPv4
-            // address, candidate pairs, local candidates.
+            // address, candidate pairs, local candidates; DTLS handshake datagrams sent / received, mbedTLS state.
             return s->pc != NULL ? peer_connection_get_ice_stat(s->pc, param1 - 16) : -1;
         default:
             return -1;
